@@ -1,0 +1,25 @@
+This algorithmic project involves creating a Python program with a graphical user interface (UI) for path finding. Here are the key specifications:
+
+User Interaction:
+
+Users can open an image of their choice using the UI.
+They can select a starting and ending point on the loaded image by clicking on two different pixels.
+Path Finding Algorithms:
+
+The project should offer several different path finding algorithms that the user can choose from using separate buttons.
+The algorithms should operate in real-time and visualize the path finding process as it progresses.
+Path Visualization:
+
+When a path finding algorithm is selected, the program should visually represent the path on the image.
+Users should be able to see the progression of the path finding as it happens on the image.
+Algorithm Cancellation:
+
+If the user selects a different path finding algorithm while one is already in progress, the program should cancel the ongoing visualization and start a new one.
+Image Representation:
+
+The program should treat the loaded image as a graph, with each pixel representing a node.
+The cost between two nodes should be calculated based on the Euclidean distance between their colors.
+Cost Minimization:
+
+The path finding algorithms implemented in the project should aim to minimize the cost between the starting and ending points on the image.
+Overall, this project aims to create a user-friendly interface that allows users to load images, select starting and ending points, choose from various path finding algorithms, and visualize the path finding process in real-time on the loaded image. The cost calculation for paths should be based on the color differences between pixels.
