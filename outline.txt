@@ -23,3 +23,32 @@ Cost Minimization:
 
 The path finding algorithms implemented in the project should aim to minimize the cost between the starting and ending points on the image.
 Overall, this project aims to create a user-friendly interface that allows users to load images, select starting and ending points, choose from various path finding algorithms, and visualize the path finding process in real-time on the loaded image. The cost calculation for paths should be based on the color differences between pixels.
+
+
+Color-Based Pathfinding Visualization in Images
+
+Short Description:
+This project aims to develop an interactive tool using Python to visualize various pathfinding algorithms on user loaded images. The application will allow users to select a start and an end points on an uploaded image and observe how different algorithms (like Dijkstra's and A*) navigate to find the shortest path. The project focuses on visualization of these algorithms, demonstrating their mechanics and efficiency on a graphical user interface by displaying the path found as a blue line and the explored pixels as negative colors.
+
+Motivation and Main Challenge
+The motivation behind this project is to provide an educational tool that visually demonstrates the workings of pathfinding algorithms and hopefully provides us with cool visual by finding paths on AI generated images and patterns.
+
+Division of Tasks and Estimated Work Hours
+Algorithm Implementation (20 hours): Implementing and optimizing pathfinding algorithms.
+GUI Development (15 hours): Designing and developing the user interface.
+Image Processing (10 hours): Handling image loading and pixel manipulation.
+Testing and Debugging (10 hours): Ensuring functionality and efficiency.
+Documentation and Reporting (7 hours): Preparing the poster.
+Deadline: 23rd of January
+
+Allocation of Team Members:
+Henry Marie MONT (25 hours): Focused on algorithm implementation.
+Julian Rene LECLERC (20 hours): In charge of GUI development.
+Maxence Alain ROUCHOU (22 hours): Responsible for image processing and testing.
+
+The final report and poster will showcase:
+A functional Python application with GUI.
+Comparative analysis of different pathfinding algorithms.
+Screenshots and descriptions of the tool in action.
+Performance feedback and user experience insights.
+Challenges encountered and solutions implemented.

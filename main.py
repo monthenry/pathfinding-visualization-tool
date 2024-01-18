@@ -88,42 +88,89 @@ class PathFindingApp:
         elif algorithm == "Bellman-Ford":
             threading.Thread(target=self.run_bellman_ford).start()
 
-
     def run_dijkstra(self):
         if self.start_point is None or self.end_point is None:
             self.algorithm_in_progress = False
             return
 
-        # Create a graph from the image pixels
         graph = self.create_image_graph()
-
-        print("start")
-
-        # Find the shortest path using Dijkstra's algorithm
-        try:
-            path = nx.shortest_path(graph, source=self.start_point, target=self.end_point, weight='cost')
-        except nx.NetworkXNoPath:
-            path = None
-
-        print("end")
-
-        if path:
-            self.visualize_path(path)
+        self.custom_dijkstra(graph, self.start_point, self.end_point)
 
         self.algorithm_in_progress = False
+
+    def custom_dijkstra(self, graph, start, goal):
+        visited = set()
+        queue = PriorityQueue()
+        queue.put((0, start))
+        visited_nodes = []
+
+        while not queue.empty():
+            (dist, current_node) = queue.get()
+            if current_node == goal:
+                break
+
+            if current_node in visited:
+                continue
+
+            visited.add(current_node)
+            visited_nodes.append(current_node)  # Store the visited node
+
+            for neighbor in graph[current_node]:
+                if neighbor not in visited:
+                    queue.put((dist + graph[current_node][neighbor]["cost"], neighbor))
+
+        # After exploration, visualize the shortest path
+        try:
+            path = nx.shortest_path(graph, source=start, target=goal, weight='cost')
+            self.visualize_path(path, visited_nodes)
+        except nx.NetworkXNoPath:
+            pass
 
     def run_a_star(self):
-        graph = self.create_image_graph()
-        try:
-            path = nx.astar_path(graph, source=self.start_point, target=self.end_point, 
-                                heuristic=self.euclidean_distance_points, weight='cost')
-        except nx.NetworkXNoPath:
-            path = None
+        if self.start_point is None or self.end_point is None:
+            self.algorithm_in_progress = False
+            return
 
-        if path:
-            self.visualize_path(path)
+        graph = self.create_image_graph()
+        self.custom_a_star(graph, self.start_point, self.end_point)
 
         self.algorithm_in_progress = False
+
+    def custom_a_star(self, graph, start, goal):
+        visited = set()
+        queue = PriorityQueue()
+        queue.put((0, start))
+        came_from = {start: None}
+        cost_so_far = {start: 0}
+        visited_nodes = []
+
+        while not queue.empty():
+            _, current = queue.get()
+
+            if current == goal:
+                break
+
+            if current not in visited:
+                visited.add(current)
+                visited_nodes.append(current)  # Store the visited node
+
+            for next_node in graph.neighbors(current):
+                new_cost = cost_so_far[current] + graph[current][next_node]['cost']
+                if next_node not in cost_so_far or new_cost < cost_so_far[next_node]:
+                    cost_so_far[next_node] = new_cost
+                    priority = new_cost + self.euclidean_distance_points(next_node, goal)
+                    queue.put((priority, next_node))
+                    came_from[next_node] = current
+
+        # Reconstruct and visualize the path
+        current = goal
+        path = []
+        while current != start:
+            path.append(current)
+            current = came_from[current]
+        path.append(start)
+        path.reverse()
+        self.visualize_path(path, visited_nodes)
 
     def run_floyd_warshall(self):
         if self.start_point is None or self.end_point is None:
@@ -319,20 +366,96 @@ class PathFindingApp:
         else:
             return 0  # Return zero as the distance if within the threshold
 
-    def update_canvas(self, current_node, color="gray"):
-        x, y = current_node
-        self.canvas.create_rectangle(x-1, y-1, x+1, y+1, outline=color, fill=color)
-        self.root.update_idletasks()  # Update the canvas
+    def visualize_path(self, path, visited_nodes):
+        # Create a copy of the original image to modify
+        img = self.image.copy()
+        pixels = img.load()
 
-    def visualize_path(self, path):
-        if not path:
-            return
+        # Invert the color of the visited nodes
+        for node in visited_nodes:
+            x, y = node
+            if x < img.width and y < img.height:
+                inverted_color = self.invert_color(pixels[x, y])
+                pixels[x, y] = inverted_color
 
-        # Draw the path on the canvas
+        # Draw the path on the image
         for i in range(len(path) - 1):
             x1, y1 = path[i]
             x2, y2 = path[i + 1]
-            self.canvas.create_line(x1, y1, x2, y2, fill="blue", width=2)
+            self.draw_line(pixels, x1, y1, x2, y2, (0, 0, 255, 255))  # Blue color for the path
+
+        # Redraw the start and end points
+        start_x, start_y = self.start_point
+        end_x, end_y = self.end_point
+        self.draw_point(pixels, start_x, start_y, (0, 255, 0, 255))  # Green color for the start point
+        self.draw_point(pixels, end_x, end_y, (255, 0, 0, 255))  # Red color for the end point
+
+        # Update the canvas with the modified image
+        self.display_image = ImageTk.PhotoImage(img)  # Convert to a format suitable for Tkinter
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.display_image)
+
+    def invert_color(self, color):
+        """Invert a given color."""
+        r, g, b, a = color
+        return (255 - r, 255 - g, 255 - b, a)
+
+    def draw_point(self, pixels, x, y, color, size=6):
+        """Draw a point on the image."""
+        img_width, img_height = self.image.size
+        for i in range(-size, size + 1):
+            for j in range(-size, size + 1):
+                if 0 <= x + i < img_width and 0 <= y + j < img_height:
+                    pixels[x + i, y + j] = color
+
+    def draw_line(self, pixels, x1, y1, x2, y2, color, thickness=3):
+        """Draw a thicker line on the image using Bresenham's line algorithm."""
+        def plot_line_low(x0, y0, x1, y1):
+            dx = x1 - x0
+            dy = y1 - y0
+            yi = 1
+            if dy < 0:
+                yi = -1
+                dy = -dy
+            D = 2*dy - dx
+            y = y0
+
+            for x in range(x0, x1 + 1):
+                for t in range(-thickness // 2, thickness // 2 + 1):
+                    pixels[x, y + t] = color
+                if D > 0:
+                    y += yi
+                    D -= 2*dx
+                D += 2*dy
+
+        def plot_line_high(x0, y0, x1, y1):
+            dx = x1 - x0
+            dy = y1 - y0
+            xi = 1
+            if dx < 0:
+                xi = -1
+                dx = -dx
+            D = 2*dx - dy
+            x = x0
+
+            for y in range(y0, y1 + 1):
+                for t in range(-thickness // 2, thickness // 2 + 1):
+                    pixels[x + t, y] = color
+                if D > 0:
+                    x += xi
+                    D -= 2*dy
+                D += 2*dx
+
+        if abs(y2 - y1) < abs(x2 - x1):
+            if x1 > x2:
+                plot_line_low(x2, y2, x1, y1)
+            else:
+                plot_line_low(x1, y1, x2, y2)
+        else:
+            if y1 > y2:
+                plot_line_high(x2, y2, x1, y1)
+            else:
+                plot_line_high(x1, y1, x2, y2)
+
 
 
 if __name__ == "__main__":
