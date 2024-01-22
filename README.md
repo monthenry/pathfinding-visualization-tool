@@ -15,19 +15,19 @@ This project is an interactive tool developed in Python to visualize various pat
 
 To set up the project, follow these steps:
 
-\```bash
+```bash
 git clone https://github.com/monthenry/Pathfinding-Visualizer.git
 cd pathfinding-visualization
 pip install -r requirements.txt
-\```
+```
 
 ## Usage
 
 To run the application:
 
-\```bash
+```bash
 python main.py
-\```
+```
 
 Follow the GUI prompts to load an image, click where you want on the image to add starting and ending points, and choose an algorithm for visualization.
 
