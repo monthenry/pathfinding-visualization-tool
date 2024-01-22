@@ -1,0 +1,6 @@
+
+tkinter==0.0  # tkinter is usually included in the standard Python distribution
+Pillow==8.2.0  # For PIL (Python Imaging Library)
+networkx==2.5
+matplotlib==3.4.1
+numpy==1.20.2
